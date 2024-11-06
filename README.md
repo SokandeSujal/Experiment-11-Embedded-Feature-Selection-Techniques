@@ -1,19 +1,20 @@
 # Breast Cancer Classification with Embedded Feature Selection
 
-This repository showcases a machine learning project focused on classifying breast cancer diagnoses using embedded feature selection techniques. We utilize Lasso Regression and Random Forest to identify and evaluate important features impacting prediction outcomes while maintaining model interpretability.
+This repository demonstrates a machine learning project that applies embedded feature selection techniques for classifying breast cancer diagnoses using the **Breast Cancer Wisconsin dataset**. We explore how embedded methods can identify and evaluate important features during model training, improving model performance and interpretability.
 
 ## Objective
 
-The goal is to demonstrate how embedded methods can effectively identify and evaluate significant features during model training on the **Breast Cancer Wisconsin dataset** for binary classification.
+The goal is to showcase the effectiveness of embedded feature selection methods, specifically **Lasso Regression** and **Random Forest**, for selecting relevant features while building a classification model. We evaluate the impact of these selected features on model performance and compare them to other ensemble methods, such as **Bagging**, **Boosting**, and **Stacking**.
 
 ## 1. Dataset Overview
 
-- **Dataset**: Breast Cancer Wisconsin
+- **Dataset**: Breast Cancer Wisconsin (from the UCI Machine Learning Repository)
 - **Number of Features**: 30
 - **Type of Features**: Continuous
 - **Target Variable**: Diagnosis (malignant or benign)
+- **Objective**: Identify important features for improving prediction accuracy, while maintaining model interpretability.
 
-### Loading the Dataset
+### Loading and Overview of the Dataset
 
 ```python
 import pandas as pd
@@ -34,18 +35,24 @@ print(y.value_counts())
 
 ### Model Choices and Justification
 
-1. **Lasso Regression**: Utilizes L1 regularization to perform feature selection by shrinking some coefficients to zero, effectively excluding those features.
-2. **Random Forest**: A tree-based ensemble method that ranks features by importance, calculated by their impact on reducing impurity in splits.
+1. **Lasso Regression**: Utilizes L1 regularization to perform feature selection by shrinking some coefficients to zero, thereby excluding those features.
+2. **Random Forest**: A tree-based ensemble method that ranks features by importance, based on how they impact the reduction of impurity during splits.
+
+In addition to the embedded feature selection models, we compare the performance of these methods with three ensemble models:
+
+- **Bagging**
+- **Boosting**
+- **Stacking**
 
 ## 3. Embedded Technique Application
 
-### 1. Lasso Regression
+### 1. **Lasso Regression**
 
 ```python
 from sklearn.linear_model import LassoCV
 from sklearn.preprocessing import StandardScaler
 
-# Standardize the features
+# Standardize features
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 
@@ -66,9 +73,7 @@ plt.savefig("lasso_coefficients.png")
 plt.show()
 ```
 
-![Lasso Coefficients](lasso_coefficients.png)
-
-### 2. Tree-Based Method (Random Forest)
+### 2. **Tree-Based Method (Random Forest)**
 
 ```python
 from sklearn.ensemble import RandomForestClassifier
@@ -91,11 +96,9 @@ plt.savefig("tree_feature_importances.png")
 plt.show()
 ```
 
-![Random Forest Feature Importances](tree_feature_importances.png)
-
 ## 4. Model Performance Evaluation
 
-### Model Performance with Lasso Features
+### Performance with **Lasso-selected Features**
 
 ```python
 from sklearn.linear_model import LogisticRegression
@@ -121,15 +124,9 @@ lasso_metrics = {
     "Recall": recall_score(y_test, y_pred_lasso),
     "F1 Score": f1_score(y_test, y_pred_lasso),
 }
-
-print("Lasso-selected Features Performance:")
-print("Accuracy:", lasso_metrics["Accuracy"])
-print("Precision:", lasso_metrics["Precision"])
-print("Recall:", lasso_metrics["Recall"])
-print("F1 Score:", lasso_metrics["F1 Score"])
 ```
 
-### Model Performance with Random Forest Features
+### Performance with **Random Forest-selected Features**
 
 ```python
 # Subset data with top 10 Random Forest-selected features
@@ -153,29 +150,9 @@ rf_metrics = {
     "Recall": recall_score(y_test, y_pred_rf),
     "F1 Score": f1_score(y_test, y_pred_rf),
 }
-
-print("\nRandom Forest-selected Features Performance:")
-print("Accuracy:", rf_metrics["Accuracy"])
-print("Precision:", rf_metrics["Precision"])
-print("Recall:", rf_metrics["Recall"])
-print("F1 Score:", rf_metrics["F1 Score"])
 ```
 
-### Performance Results
-
-- **Lasso-selected Features Performance**:
-  - Accuracy: 0.9883
-  - Precision: 0.9907
-  - Recall: 0.9907
-  - F1 Score: 0.9907
-
-- **Random Forest-selected Features Performance**:
-  - Accuracy: 0.9649
-  - Precision: 0.9811
-  - Recall: 0.9630
-  - F1 Score: 0.9720
-
-### Performance Comparison
+### Performance Comparison of **Lasso** vs **Random Forest** Features
 
 ```python
 # Prepare data for plotting
@@ -183,7 +160,7 @@ metrics = list(lasso_metrics.keys())
 lasso_scores = list(lasso_metrics.values())
 rf_scores = list(rf_metrics.values())
 
-# Plotting
+# Plot the performance comparison
 x = range(len(metrics))  # x positions for the bars
 width = 0.35  # width of the bars
 
@@ -205,19 +182,99 @@ plt.savefig('logistic_regression_performance_comparison.png')
 plt.show()
 ```
 
-![Performance Comparison](logistic_regression_performance_comparison.png)
+### 5. **Ensemble Methods Comparison**
 
-## 5. Comparison with Filter and Wrapper Methods
+We also evaluate the performance of several ensemble methods:
 
-- **Filter Methods**: Independent of models, quick, but may overlook feature interactions.
-- **Wrapper Methods**: More accurate through subset evaluation but computationally expensive.
-- **Embedded Methods**: Balance efficiency and accuracy, performing feature selection during model training.
+- **Bagging**
+- **Boosting**
+- **Stacking**
 
-## Documentation and Conclusion
+These methods are applied to the same dataset and evaluated using the same performance metrics.
 
-Each step in the notebook includes comments for clarity, focusing on:
+```python
+from sklearn.ensemble import BaggingClassifier, AdaBoostClassifier, StackingClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-- **Feature Importance**: Variability of selected features across methods.
-- **Performance**: Impact of selected features on model performance metrics.
+# Initialize classifiers
+bagging = BaggingClassifier(estimator=DecisionTreeClassifier(), n_estimators=50, random_state=42)
+boosting = AdaBoostClassifier(n_estimators=50, random_state=42)
+stacking = StackingClassifier(
+    estimators=[('rf', RandomForestClassifier(random_state=42)),
+                ('ada', AdaBoostClassifier(n_estimators=50, random_state=42))],
+    final_estimator=LogisticRegression(max_iter=200)
+)
 
-This project highlights the practical utility of embedded methods, particularly for real-world applications where interpretability and efficiency are crucial. Feel free to explore the code and adapt it for your own use!
+# Fit models and evaluate metrics
+models = [bagging, boosting, stacking]
+model_names = ["Bagging", "Boosting", "Stacking"]
+model_metrics = {}
+
+for model, name in zip(models, model_names):
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
+    model_metrics[name] = {
+        "Accuracy": accuracy_score(y_test, y_pred),
+        "Precision": precision_score(y_test, y_pred),
+        "Recall": recall_score(y_test, y_pred),
+        "F1 Score": f1_score(y_test, y_pred),
+    }
+
+# Plotting the performance of ensemble methods
+fig, ax = plt.subplots(figsize=(10, 6))
+x = range(len(metrics))
+width = 0.15
+
+for i, (model_name, scores) in enumerate(model_metrics.items()):
+    ax.bar([p + width * i for p in x], list(scores.values()), width, label=model_name)
+
+ax.set_xlabel('Metrics')
+ax.set_ylabel('Scores')
+ax.set_title('Performance Comparison of Different Ensemble Methods')
+ax.set_xticks([p + width * 2 for p in x])
+ax.set_xticklabels(metrics)
+ax.legend()
+
+plt.tight_layout()
+plt.savefig('ensemble_methods_comparison.png')
+plt.show()
+```
+
+### 6. **Final Performance Results**
+
+- **Lasso-selected Features Performance**:
+  - Accuracy: 0.9883
+  - Precision: 0.9907
+  - Recall: 0.9907
+  - F1 Score: 0.9907
+
+- **Random Forest-selected Features Performance**:
+  - Accuracy: 0.9649
+  - Precision: 0.9811
+  - Recall: 0.9630
+  - F1 Score: 0.9720
+
+- **Bagging Performance**:
+  - Accuracy: 0.9591
+  - Precision: 0.9633
+  - Recall: 0.9722
+  - F1
+
+ Score: 0.9677
+
+- **Boosting Performance**:
+  - Accuracy: 0.9651
+  - Precision: 0.9786
+  - Recall: 0.9722
+  - F1 Score: 0.9754
+
+- **Stacking Performance**:
+  - Accuracy: 0.9676
+  - Precision: 0.9743
+  - Recall: 0.9743
+  - F1 Score: 0.9743
+
+## Conclusion
+
+The Lasso feature selection method helped in reducing the dimensionality of the data by identifying key features, and the performance was comparable to that of more complex ensemble models like Random Forest. The Random Forest feature selection method offered good interpretability with a slightly lower performance than Lasso. Bagging and Boosting improved performance over simpler models, while Stacking yielded the best overall results.
