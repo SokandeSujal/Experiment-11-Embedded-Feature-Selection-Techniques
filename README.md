@@ -259,9 +259,7 @@ plt.show()
   - Accuracy: 0.9591
   - Precision: 0.9633
   - Recall: 0.9722
-  - F1
-
- Score: 0.9677
+  - F1 Score: 0.9677
 
 - **Boosting Performance**:
   - Accuracy: 0.9651
@@ -274,6 +272,12 @@ plt.show()
   - Precision: 0.9743
   - Recall: 0.9743
   - F1 Score: 0.9743
+
+## Performance Comparison of Ensemble Methods
+
+Below is a performance comparison of different ensemble models:
+
+![Performance Comparison](ensemble_methods_comparison.png)
 
 ## Conclusion
 
